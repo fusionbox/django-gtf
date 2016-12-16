@@ -9,7 +9,7 @@ version = '0.0.4.dev0'
 
 setup(name='django-gtf',
     version=version,
-    description='Generit Template Finder Middleware for Django',
+    description='Generic Template Finder Middleware for Django',
     author='Fusionbox programmers',
     author_email='programmers@fusionbox.com',
     keywords='django boilerplate',
