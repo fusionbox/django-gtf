@@ -1,25 +1,11 @@
-import os
 import errno
-from six.moves.urllib.parse import urlparse, urljoin
-import warnings
-import itertools
-
-from collections import defaultdict
 
 from django.conf import settings
 from django.template import TemplateDoesNotExist
-from django.http import Http404, HttpResponse, HttpResponsePermanentRedirect
+from django.http import Http404, HttpResponsePermanentRedirect
 from django.shortcuts import render
 from django.views.decorators.csrf import requires_csrf_token
-from django.core.exceptions import ImproperlyConfigured
 from django.core import urlresolvers
-from django.utils.encoding import iri_to_uri
-
-try:
-    from django.contrib.sites.shortcuts import get_current_site
-except ImportError:
-    # django < 1.9
-    from django.contrib.sites.models import get_current_site
 
 
 @requires_csrf_token
@@ -34,10 +20,10 @@ def generic_template_finder_view(request, base_path='', extra_context={}):
     if not path.endswith('/'):
         path += '/'
     possibilities = (
-            path.strip('/') + '.html',
-            path.lstrip('/') + 'index.html',
-            path.strip('/'),
-            )
+        path.strip('/') + '.html',
+        path.lstrip('/') + 'index.html',
+        path.strip('/'),
+    )
     for t in possibilities:
         try:
             response = render(request, t, extra_context)
@@ -81,7 +67,9 @@ class GenericTemplateFinderMiddleware(object):
                     # request's urlconf. Set it temporarily so the template can
                     # reverse properly.
                     urlresolvers.set_urlconf(request.urlconf)
-                return generic_template_finder_view(request, extra_context=self.get_extra_context(request))
+                return generic_template_finder_view(
+                    request, extra_context=self.get_extra_context(request)
+                )
             except Http404:
                 return response
             except UnicodeEncodeError:
