@@ -1,25 +1,10 @@
-import os
 import errno
-from six.moves.urllib.parse import urlparse, urljoin
-import warnings
-import itertools
-
-from collections import defaultdict
-
 from django.conf import settings
 from django.template import TemplateDoesNotExist
-from django.http import Http404, HttpResponse, HttpResponsePermanentRedirect
+from django.http import Http404, HttpResponsePermanentRedirect
 from django.shortcuts import render
 from django.views.decorators.csrf import requires_csrf_token
-from django.core.exceptions import ImproperlyConfigured
 from django.core import urlresolvers
-from django.utils.encoding import iri_to_uri
-
-try:
-    from django.contrib.sites.shortcuts import get_current_site
-except ImportError:
-    # django < 1.9
-    from django.contrib.sites.models import get_current_site
 
 try:
     from django.utils.deprecation import MiddlewareMixin
@@ -80,14 +65,18 @@ class GenericTemplateFinderMiddleware(MiddlewareMixin):
         404 raised from view functions are not caught by
         ``GenericTemplateFinderMiddleware``.
         """
-        if response.status_code == 404 and not getattr(request, '_generic_template_finder_middleware_view_found', False):
+        real_404 = getattr(request, '_generic_template_finder_middleware_view_found', False)
+        if response.status_code == 404 and not real_404:
             try:
                 if hasattr(request, 'urlconf'):
                     # Django calls response middlewares after it has unset the
                     # request's urlconf. Set it temporarily so the template can
                     # reverse properly.
                     urlresolvers.set_urlconf(request.urlconf)
-                return generic_template_finder_view(request, extra_context=self.get_extra_context(request))
+                return generic_template_finder_view(
+                    request,
+                    extra_context=self.get_extra_context(request)
+                )
             except Http404:
                 return response
             except UnicodeEncodeError:
