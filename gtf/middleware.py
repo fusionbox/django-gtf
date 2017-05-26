@@ -21,6 +21,12 @@ except ImportError:
     # django < 1.9
     from django.contrib.sites.models import get_current_site
 
+try:
+    from django.utils.deprecation import MiddlewareMixin
+except ImportError:
+    # If new style middleware isn't supported, just inherit from object
+    MiddlewareMixin = object
+
 
 @requires_csrf_token
 def generic_template_finder_view(request, base_path='', extra_context={}):
@@ -63,7 +69,7 @@ def generic_template_finder_view(request, base_path='', extra_context={}):
     raise Http404('Template not found in any of %r' % (possibilities,))
 
 
-class GenericTemplateFinderMiddleware(object):
+class GenericTemplateFinderMiddleware(MiddlewareMixin):
     """
     Response middleware that uses :func:`generic_template_finder_view` to attempt to
     autolocate a template for otherwise 404 responses.
