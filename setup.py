@@ -5,7 +5,7 @@ __doc__="""
 Generic Template Finder Middleware for Django
 """
 
-version = '0.3.dev0'
+version = '0.3'
 
 setup(name='django-gtf',
     version=version,
