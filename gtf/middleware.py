@@ -4,7 +4,7 @@ from django.template import TemplateDoesNotExist
 from django.http import Http404, HttpResponsePermanentRedirect
 from django.shortcuts import render
 from django.views.decorators.csrf import requires_csrf_token
-from django.core import urlresolvers
+from django.urls import get_resolver
 
 try:
     from django.utils.deprecation import MiddlewareMixin
@@ -72,7 +72,7 @@ class GenericTemplateFinderMiddleware(MiddlewareMixin):
                     # Django calls response middlewares after it has unset the
                     # request's urlconf. Set it temporarily so the template can
                     # reverse properly.
-                    urlresolvers.set_urlconf(request.urlconf)
+                    get_resolver(request.urlconf)
                 return generic_template_finder_view(
                     request,
                     extra_context=self.get_extra_context(request)
@@ -82,7 +82,7 @@ class GenericTemplateFinderMiddleware(MiddlewareMixin):
             except UnicodeEncodeError:
                 return response
             finally:
-                urlresolvers.set_urlconf(None)
+                get_resolver(None)
         else:
             return response
 
