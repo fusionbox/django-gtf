@@ -32,7 +32,7 @@ def generic_template_finder_view(request, base_path='', extra_context={}):
     for t in possibilities:
         try:
             response = render(request, t, extra_context)
-        except (TemplateDoesNotExist):
+        except TemplateDoesNotExist:
             continue
         except OSError as e:
             # If there's a directory that matches the template we're looking for,
@@ -40,8 +40,10 @@ def generic_template_finder_view(request, base_path='', extra_context={}):
             # `TemplateDoesNotExist` error. IsADirectoryError was introduced in
             # Python 3 and is a subclass of OSError and its errno corresponds to EISDIR,
             # so for Python 2 compatibility, OSError is caught instead of IsADirectoryError
-            if e.errno == errno.EISDIR:
+            if e.errno in [errno.EISDIR, errno.ENOTDIR]:
                 continue
+            elif e.errno == errno.ENAMETOOLONG:
+                raise Http404('File name too long')
             else:
                 raise
         if t.endswith('.html') and not path.endswith(request.path) and settings.APPEND_SLASH:
