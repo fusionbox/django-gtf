@@ -43,7 +43,7 @@ def generic_template_finder_view(request, base_path='', extra_context={}):
             if e.errno in [errno.EISDIR, errno.ENOTDIR]:
                 continue
             elif e.errno == errno.ENAMETOOLONG:
-                raise Http404
+                raise Http404('File name too long')
             else:
                 raise
         if t.endswith('.html') and not path.endswith(request.path) and settings.APPEND_SLASH:
